@@ -89,7 +89,14 @@ export default function PhoneticsPortal() {
       });
 
       if (!response.ok) {
-        throw new Error("Phonetic transcriber encountered a generation timeout. Please try again.");
+        let errMsg = "Phonetic transcriber encountered an error. Please try again.";
+        try {
+          const errData = await response.json();
+          if (errData && errData.error) {
+            errMsg = errData.error;
+          }
+        } catch (_) {}
+        throw new Error(errMsg);
       }
 
       const data = await response.json();

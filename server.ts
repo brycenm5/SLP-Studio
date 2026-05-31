@@ -16,15 +16,25 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Initialize Gemini Client
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    }
+// Initialize Gemini Client with lazy evaluation and clean validation error messages
+let cachedAI: GoogleGenAI | null = null;
+function getAIClient() {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key || key.trim() === "" || key.includes("MY_GEMINI_API_KEY")) {
+    throw new Error("GEMINI_API_KEY is missing or unconfigured. Please create a Google Gemini API Key at https://aistudio.google.com and add it as an Environment Variable named GEMINI_API_KEY in your hosting/Vercel settings or local .env file.");
   }
-});
+  if (!cachedAI) {
+    cachedAI = new GoogleGenAI({
+      apiKey: key,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+  }
+  return cachedAI;
+}
 
 // Endpoint 1: Clinical Consulting Chat
 app.post("/api/clinical-consult", async (req, res) => {
@@ -48,7 +58,7 @@ app.post("/api/clinical-consult", async (req, res) => {
       parts: [{ text: m.text }]
     }));
 
-    const response = await ai.models.generateContent({
+    const response = await getAIClient().models.generateContent({
       model: "gemini-3.5-flash",
       contents: contents,
       config: {
@@ -119,7 +129,7 @@ app.post("/api/phonetic-transcribe", async (req, res) => {
       required: ["overallIpa", "syllablesCount", "stressPattern", "wordBreakdown", "scientificNote"]
     };
 
-    const response = await ai.models.generateContent({
+    const response = await getAIClient().models.generateContent({
       model: "gemini-3.5-flash",
       contents: prompt,
       config: {
@@ -190,7 +200,7 @@ app.post("/api/pediatric-assessment", async (req, res) => {
       required: ["processDetected", "developmentalAnalysis", "therapeuticClassification", "simulatedGameName", "gameInstructions", "reinforcementSlogan", "parentTrainingTips"]
     };
 
-    const response = await ai.models.generateContent({
+    const response = await getAIClient().models.generateContent({
       model: "gemini-3.5-flash",
       contents: prompt,
       config: {
@@ -265,7 +275,7 @@ app.post("/api/generate-poc", async (req, res) => {
       required: ["backgroundSummary", "longTermGoals", "shortTermObjectives", "clinicalMethodologies", "placementCues", "homeProgramOutline"]
     };
 
-    const response = await ai.models.generateContent({
+    const response = await getAIClient().models.generateContent({
       model: "gemini-3.5-flash",
       contents: prompt,
       config: {

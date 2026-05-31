@@ -67,7 +67,14 @@ export default function AIConsultant({ onClose }: AIConsultantProps) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to consult our AI Clinical core.");
+        let errMsg = "Failed to consult our AI Clinical core.";
+        try {
+          const errData = await response.json();
+          if (errData && errData.error) {
+            errMsg = errData.error;
+          }
+        } catch (_) {}
+        throw new Error(errMsg);
       }
 
       const data = await response.json();

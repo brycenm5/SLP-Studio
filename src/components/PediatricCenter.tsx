@@ -64,7 +64,14 @@ export default function PediatricCenter() {
       });
 
       if (!response.ok) {
-        throw new Error("Pediatric core timed out. Please check input parameters and try again.");
+        let errMsg = "Pediatric core encountered an error. Please try again.";
+        try {
+          const errData = await response.json();
+          if (errData && errData.error) {
+            errMsg = errData.error;
+          }
+        } catch (_) {}
+        throw new Error(errMsg);
       }
 
       const data = await response.json();
