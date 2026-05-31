@@ -1,0 +1,6 @@
+{
+  "name": "Speech-Language Pathology Portal",
+  "description": "An interconnected professional speech-language pathology platform featuring a Phonetics Research Portal, Pediatric Development Hub, and Clinical Interventions Lab with AI consulting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
