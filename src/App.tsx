@@ -17,18 +17,23 @@ export default function App() {
   const [isConsultOpen, setIsConsultOpen] = useState(false);
   const [passcodeInput, setPasscodeInput] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(() => {
-    return typeof window !== "undefined" && localStorage.getItem("vocalis_passcode") === "Olivia0924";
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("vocalis_passcode");
+      return !!stored && stored.trim().toLowerCase() === "olivia0924";
+    }
+    return false;
   });
   const [authError, setAuthError] = useState("");
 
   const handleVerifyPasscode = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcodeInput === "Olivia0924") {
+    const sanitized = passcodeInput.trim().toLowerCase();
+    if (sanitized === "olivia0924") {
       localStorage.setItem("vocalis_passcode", "Olivia0924");
       setIsAuthorized(true);
       setAuthError("");
     } else {
-      setAuthError("Invalid credentials. Please consult security credentials.");
+      setAuthError("Invalid credentials. Please check password formatting.");
     }
   };
 
